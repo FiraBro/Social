@@ -50,8 +50,8 @@ func (app *application) mount() *chi.Mux {
 		_, _ = w.Write([]byte("Welcome to Social API"))
 	})
 
-	r.Get("/v1/health", app.healthHandler)
-	r.Post("/v1/posts", app.createPostHandler)
+	r.Get("/api/v1/health", app.healthHandler)
+	r.Post("/api/v1/posts", app.createPostHandler)
 
 	return r
 }
