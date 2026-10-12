@@ -51,10 +51,7 @@ func (app *application) mount() *chi.Mux {
 	})
 
 	r.Get("/v1/health", app.healthHandler)
-
-	// Posts routes can be registered here when ready.
-	// Example:
-	// r.Post("/v1/posts", app.createPostHandler)
+	r.Post("/v1/posts", app.createPostHandler)
 
 	return r
 }

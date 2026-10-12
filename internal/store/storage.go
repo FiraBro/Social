@@ -6,9 +6,7 @@ import (
 )
 
 type Storage struct {
-	Post interface {
-		Create(context.Context, *Post) error
-	}
+	Post PostRepository
 	User interface {
 		Create(context.Context, *users) error
 	}

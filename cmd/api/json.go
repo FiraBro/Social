@@ -2,6 +2,8 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
+	"io"
 	"net/http"
 )
 
@@ -20,13 +22,24 @@ func readJSON(w http.ResponseWriter, r *http.Request, data any) error {
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
 
-	return decoder.Decode(data)
+	if err := decoder.Decode(data); err != nil {
+		return err
+	}
+
+	if err := decoder.Decode(&struct{}{}); err != io.EOF {
+		if err == nil {
+			return errors.New("request body must contain a single JSON value")
+		}
+		return err
+	}
+
+	return nil
 }
 
 // handleJSONError provides detailed, user-friendly error messages for JSON decoding
-func writeJSONError(w http.ResponseWriter,status int, message string) error {
-	type envelop struct{
-		Error string `json:error`
+func writeJSONError(w http.ResponseWriter, status int, message string) error {
+	type envelope struct {
+		Error string `json:"error"`
 	}
-	return writeJSON(w,status, &envelop{Error: message})
+	return writeJSON(w, status, &envelope{Error: message})
 }
