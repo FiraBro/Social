@@ -8,19 +8,7 @@ import (
 	"Todo-List-Go/internal/store"
 )
 
-// DB config
-type dbConfig struct {
-	addr         string
-	maxOpenConns int
-	maxIdleConns int
-	maxIdleTime  string
-}
-
-// App config
-type config struct {
-	addr string
-	db   dbConfig
-}
+const version string = "0.0.1"
 
 func main() {
 	// Load config from env or defaults
@@ -39,14 +27,17 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
+	defer dbConn.Close() // ✅ Corrected
+
+	log.Println("Database is connected")
 
 	// Initialize store
-	store := store.NewSQLStorage(dbConn)
+	storage := store.NewSQLStorage(dbConn) // ✅ Renamed variable
 
 	// Create application
 	app := &application{
 		config: cfg,
-		store:  store,
+		store:  storage,
 	}
 
 	// Start server

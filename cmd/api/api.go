@@ -17,6 +17,20 @@ type application struct {
 	store  store.Storage
 }
 
+type dbConfig struct {
+	addr         string
+	maxOpenConns int
+	maxIdleConns int
+	maxIdleTime  string
+}
+
+// App config
+type config struct {
+	addr string
+	db   dbConfig
+	env  string
+}
+
 // Setup routes
 func (app *application) mount() *chi.Mux {
 	r := chi.NewRouter()
@@ -28,6 +42,8 @@ func (app *application) mount() *chi.Mux {
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("welcome"))
 	})
+
+	r.Get("/v1/health", app.healthHandler)
 
 	return r
 }

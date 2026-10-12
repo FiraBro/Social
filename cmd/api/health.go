@@ -1,13 +1,23 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 )
 
-func (app *application) healthHandler(http.ResponseWriter, *http.Request) error {
-	mux := app.mount()
-	fmt.Println("Server setup OK ✅")
-	fmt.Println("Mux:", mux) // just to show that mount() worked
-	return nil
+// healthHandler returns a simple JSON health check response
+func (app *application) healthHandler(w http.ResponseWriter, r *http.Request) {
+	env:=app.config.env
+	if env==""{
+		env="development"
+	}
+	data := map[string]string{
+		"status":  "ok",
+		"env":     env,
+		"version": version,
+	}
+
+	if err := writeJSON(w, http.StatusOK, data); err != nil {
+		_ = writeJSONError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
 }
