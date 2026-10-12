@@ -1,4 +1,4 @@
-	package store
+package store
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 
 type Storage struct {
 	Post interface {
-		Create(context.Context, *post) error
+		Create(context.Context, *Post) error
 	}
 	User interface {
 		Create(context.Context, *users) error
@@ -16,7 +16,7 @@ type Storage struct {
 
 func NewSQLStorage(db *sql.DB) Storage {
 	return Storage{
-		Post: &postStore{db},
-		User: &userStore{db},
+		Post: &postStore{db: db},
+		User: &userStore{db: db},
 	}
 }

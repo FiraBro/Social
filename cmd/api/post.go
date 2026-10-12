@@ -2,6 +2,8 @@ package main
 
 import (
 	"net/http"
+
+	"github.com/FiraBro/social/internal/store"
 )
 
 type createPostPayload struct {
@@ -20,10 +22,11 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 
 	// Step 2: Create a new Post struct (from your store or model)
 	post := &store.Post{
-		Title:   postPayload.Title,
-		Content: postPayload.Content,
-		UserID:  1, // temporarily hardcoded for testing
-	}
+    Title:   postPayload.Title,
+    Content: postPayload.Content,
+    UserID:  1,
+    Tags:    []string{},
+}
 
 	// Step 3: Insert the post into the database
 	ctx := r.Context()

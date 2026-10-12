@@ -1,4 +1,4 @@
-module Todo-List-Go
+module github.com/FiraBro/social
 
 go 1.25.0
 

@@ -5,18 +5,19 @@ import (
 	"net/http"
 	"time"
 
-	"Todo-List-Go/internal/store"
+	"github.com/FiraBro/social/internal/store"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
 
-// Main app struct
+// application holds the dependencies required by the API.
 type application struct {
 	config config
 	store  store.Storage
 }
 
+// dbConfig contains database connection settings.
 type dbConfig struct {
 	addr         string
 	maxOpenConns int
@@ -24,39 +25,52 @@ type dbConfig struct {
 	maxIdleTime  string
 }
 
-// App config
+// config contains application configuration.
 type config struct {
 	addr string
 	db   dbConfig
 	env  string
 }
 
-// Setup routes
+// mount registers routes and middleware.
 func (app *application) mount() *chi.Mux {
 	r := chi.NewRouter()
 
-	// Middleware
-	r.Use(middleware.Recoverer, middleware.RequestID, middleware.Logger)
+	// Middleware.
+	r.Use(
+		middleware.RequestID,
+		middleware.RealIP,
+		middleware.Logger,
+		middleware.Recoverer,
+	)
 
-	// Routes
+	// Routes.
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("welcome"))
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("Welcome to Social API"))
 	})
 
 	r.Get("/v1/health", app.healthHandler)
 
+	// Posts routes can be registered here when ready.
+	// Example:
+	// r.Post("/v1/posts", app.createPostHandler)
+
 	return r
 }
 
-// Run HTTP server
+// run starts the HTTP server.
 func (app *application) run(mux *chi.Mux) error {
 	srv := &http.Server{
-		Addr:         app.config.addr,
-		Handler:      mux,
-		WriteTimeout: 30 * time.Second,
-		ReadTimeout:  10 * time.Second,
+		Addr:              app.config.addr,
+		Handler:           mux,
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       10 * time.Second,
+		WriteTimeout:      30 * time.Second,
+		IdleTimeout:       60 * time.Second,
 	}
 
 	log.Printf("Server running on %s", app.config.addr)
+
 	return srv.ListenAndServe()
 }

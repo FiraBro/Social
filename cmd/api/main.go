@@ -3,15 +3,15 @@ package main
 import (
 	"log"
 
-	"Todo-List-Go/internal/db"
-	"Todo-List-Go/internal/env"
-	"Todo-List-Go/internal/store"
+	"github.com/FiraBro/social/internal/db"
+	"github.com/FiraBro/social/internal/env"
+	"github.com/FiraBro/social/internal/store"
 )
 
-const version string = "0.0.1"
+const version = "0.0.1"
 
 func main() {
-	// Load config from env or defaults
+	// Load configuration from environment variables or defaults.
 	cfg := config{
 		addr: env.GetString("ADDR", ":4000"),
 		db: dbConfig{
@@ -22,25 +22,30 @@ func main() {
 		},
 	}
 
-	// Connect to DB
-	dbConn, err := db.New(cfg.db.addr, cfg.db.maxIdleConns, cfg.db.maxIdleTime, cfg.db.maxOpenConns)
+	// Connect to the database.
+	dbConn, err := db.New(
+		cfg.db.addr,
+		cfg.db.maxIdleConns,
+		cfg.db.maxIdleTime,
+		cfg.db.maxOpenConns,
+	)
 	if err != nil {
-		log.Panic(err)
+		log.Fatal("Failed to connect to database: ", err)
 	}
-	defer dbConn.Close() // ✅ Corrected
+	defer dbConn.Close()
 
-	log.Println("Database is connected")
+	log.Println("Database connected successfully")
 
-	// Initialize store
-	storage := store.NewSQLStorage(dbConn) // ✅ Renamed variable
+	// Initialize storage.
+	storage := store.NewSQLStorage(dbConn)
 
-	// Create application
+	// Create the application.
 	app := &application{
 		config: cfg,
 		store:  storage,
 	}
 
-	// Start server
+	// Start the HTTP server.
 	mux := app.mount()
 	log.Fatal(app.run(mux))
 }
